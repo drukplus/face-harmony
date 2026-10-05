@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FaceHarmony AI — Анализ фенотипической гармонии лиц</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+            },
+            accent: {
+              pink: '#ec4899',
+              cyan: '#06b6d4',
+              emerald: '#10b981',
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'spin-slow': 'spin 12s linear infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      background-color: #090d16;
+      color: #f1f5f9;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.12) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(6, 182, 212, 0.1) 0px, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+    }
+
+    .glass-card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card-hover:hover {
+      border-color: rgba(139, 92, 246, 0.35);
+      box-shadow: 0 24px 50px -12px rgba(124, 58, 237, 0.25);
+      transform: translateY(-2px);
+    }
+
+    /* Radial Progress */
+    .radial-progress-circle {
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+    .radial-progress-bg {
+      stroke: rgba(255, 255, 255, 0.08);
+    }
+    .radial-progress-val {
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-brand-500 selection:text-white antialiased">
+
+  <!-- Ambient Light Orbs -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="absolute -top-40 left-1/4 w-96 h-96 bg-brand-600/20 rounded-full blur-3xl animate-pulse-slow"></div>
+    <div class="absolute top-1/3 -right-20 w-80 h-80 bg-accent-pink/15 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 2s;"></div>
+    <div class="absolute bottom-10 left-10 w-96 h-96 bg-accent-cyan/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 1s;"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="relative z-10 border-b border-slate-800/80 bg-slate-950/60 backdrop-blur-md sticky top-0">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-pink-500 p-0.5 shadow-lg shadow-brand-500/25 flex items-center justify-center">
+          <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+            <i data-lucide="sparkles" class="w-5 h-5 text-brand-400"></i>
+          </div>
+        </div>
+        <div>
+          <span class="font-display font-bold text-xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+            FaceHarmony <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-semibold border border-brand-500/30 uppercase tracking-widest ml-1">AI</span>
+          </span>
+          <p class="text-xs text-slate-400 hidden sm:block">Морфологический резонанс и фенотипическая совместимость</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="btn-load-demo-harmony" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/70 hover:bg-slate-700/80 border border-slate-700/70 transition flex items-center gap-1.5">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-brand-400"></i>
+          <span>Гармоничная</span>
+        </button>
+        <button id="btn-load-demo-contrast" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/70 hover:bg-slate-700/80 border border-slate-700/70 transition flex items-center gap-1.5">
+          <i data-lucide="split" class="w-3.5 h-3.5 text-accent-pink"></i>
+          <span>Контрастная</span>
+        </button>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          Gemini 3.8 Flash Online
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="relative z-10 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col gap-10">
+
+    <!-- Hero Intro -->
+    <div class="text-center max-w-2xl mx-auto space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-brand-500/10 text-brand-300 border border-brand-500/20 mb-1">
+        <i data-lucide="scan-face" class="w-3.5 h-3.5 text-brand-400"></i>
+        <span>Компьютерная антропометрия и эстетическая биометрия</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-display text-white">
+        Узнайте гармонию <br class="hidden sm:inline">
+        <span class="bg-gradient-to-r from-brand-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">ваших лиц в деталях</span>
+      </h1>
+      <p class="text-sm sm:text-base text-slate-400 leading-relaxed">
+        Загрузите фотографии двух человек для глубокого морфологического анализа геометрии, общих фенотипических черт и комплементарного баланса.
+      </p>
+    </div>
+
+    <!-- Upload Section -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+      
+      <!-- Center Connector Badge (Visible on desktop) -->
+      <div class="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full glass-card border border-brand-500/40 items-center justify-center shadow-lg shadow-brand-500/20">
+        <i data-lucide="heart-handshake" class="w-6 h-6 text-pink-400"></i>
+      </div>
+
+      <!-- Partner A Card -->
+      <div class="glass-card glass-card-hover rounded-3xl p-6 flex flex-col gap-4 border border-slate-800 relative group">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-7 h-7 rounded-xl bg-violet-600/30 text-violet-300 flex items-center justify-center font-bold text-xs border border-violet-500/30">1</span>
+            <h3 class="font-semibold text-slate-200 text-sm tracking-wide">Партнер A</h3>
+          </div>
+          <span id="badge-a" class="text-xs text-slate-500 font-medium">Ожидает фото</span>
+        </div>
+
+        <!-- Dropzone A -->
+        <div id="dropzone-a" class="relative border-2 border-dashed border-slate-700/80 hover:border-brand-500/70 rounded-2xl p-4 flex flex-col items-center justify-center min-h-[260px] bg-slate-900/50 hover:bg-slate-900/80 transition-all cursor-pointer overflow-hidden">
+          <input type="file" id="input-a" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10">
+          
+          <!-- Empty State -->
+          <div id="placeholder-a" class="flex flex-col items-center gap-3 text-center p-4">
+            <div class="w-16 h-16 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-400 group-hover:text-brand-400 group-hover:scale-105 transition-all">
+              <i data-lucide="image-plus" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-slate-200">Перетащите фото сюда</p>
+              <p class="text-xs text-slate-400 mt-0.5">или нажмите для выбора файла</p>
+            </div>
+            <span class="text-[11px] text-slate-500 font-mono">JPG, PNG, WEBP до 10 МБ</span>
+          </div>
+
+          <!-- Preview State -->
+          <div id="preview-container-a" class="hidden absolute inset-0 w-full h-full bg-slate-950 flex items-center justify-center">
+            <img id="img-preview-a" class="w-full h-full object-cover" alt="Partner A Preview">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-4">
+              <span class="text-xs text-slate-200 font-medium">Партнер A загружен</span>
+              <button type="button" id="btn-remove-a" class="z-20 p-2 rounded-xl bg-red-500/80 hover:bg-red-600 text-white backdrop-blur transition shadow-lg">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Partner B Card -->
+      <div class="glass-card glass-card-hover rounded-3xl p-6 flex flex-col gap-4 border border-slate-800 relative group">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-7 h-7 rounded-xl bg-pink-600/30 text-pink-300 flex items-center justify-center font-bold text-xs border border-pink-500/30">2</span>
+            <h3 class="font-semibold text-slate-200 text-sm tracking-wide">Партнер B</h3>
+          </div>
+          <span id="badge-b" class="text-xs text-slate-500 font-medium">Ожидает фото</span>
+        </div>
+
+        <!-- Dropzone B -->
+        <div id="dropzone-b" class="relative border-2 border-dashed border-slate-700/80 hover:border-pink-500/70 rounded-2xl p-4 flex flex-col items-center justify-center min-h-[260px] bg-slate-900/50 hover:bg-slate-900/80 transition-all cursor-pointer overflow-hidden">
+          <input type="file" id="input-b" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10">
+          
+          <!-- Empty State -->
+          <div id="placeholder-b" class="flex flex-col items-center gap-3 text-center p-4">
+            <div class="w-16 h-16 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-400 group-hover:text-pink-400 group-hover:scale-105 transition-all">
+              <i data-lucide="image-plus" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-slate-200">Перетащите фото сюда</p>
+              <p class="text-xs text-slate-400 mt-0.5">или нажмите для выбора файла</p>
+            </div>
+            <span class="text-[11px] text-slate-500 font-mono">JPG, PNG, WEBP до 10 МБ</span>
+          </div>
+
+          <!-- Preview State -->
+          <div id="preview-container-b" class="hidden absolute inset-0 w-full h-full bg-slate-950 flex items-center justify-center">
+            <img id="img-preview-b" class="w-full h-full object-cover" alt="Partner B Preview">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-4">
+              <span class="text-xs text-slate-200 font-medium">Партнер B загружен</span>
+              <button type="button" id="btn-remove-b" class="z-20 p-2 rounded-xl bg-red-500/80 hover:bg-red-600 text-white backdrop-blur transition shadow-lg">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Action Section -->
+    <div class="flex flex-col items-center justify-center gap-4">
+      <button id="btn-analyze" disabled class="relative group cursor-not-allowed opacity-50 px-8 py-4 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-violet-600 via-indigo-600 to-pink-500 shadow-xl shadow-brand-600/30 hover:shadow-brand-500/50 transition-all duration-300 flex items-center gap-3 overflow-hidden">
+        <span class="absolute inset-0 w-full h-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+        <i data-lucide="brain-circuit" class="w-5 h-5 text-white transition group-hover:rotate-12"></i>
+        <span id="btn-text">Рассчитать гармонию</span>
+        <div id="btn-spinner" class="hidden animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+      </button>
+
+      <!-- Status Subtext during processing -->
+      <p id="analysis-step-status" class="text-xs font-medium text-slate-400 min-h-[20px] transition-all text-center"></p>
+
+      <!-- Error Box -->
+      <div id="error-box" class="hidden max-w-lg w-full p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm flex items-start gap-3">
+        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-400 shrink-0 mt-0.5"></i>
+        <div class="flex-1">
+          <p class="font-semibold text-red-200" id="error-title">Ошибка анализа</p>
+          <p class="text-xs text-red-300/90 mt-0.5" id="error-message">Произошла ошибка при обработке изображений.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Section (Initially Hidden) -->
+    <section id="results-section" class="hidden flex flex-col gap-8 scroll-mt-24 transition-opacity duration-700 opacity-0">
+      
+      <!-- Top Overview Card -->
+      <div class="glass-card rounded-3xl p-6 sm:p-10 border border-slate-800/80 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-80 h-80 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+          
+          <!-- Circular Progress Bar -->
+          <div class="relative shrink-0 flex flex-col items-center">
+            <svg class="w-48 h-48 sm:w-56 sm:h-56" viewBox="0 0 200 200">
+              <defs>
+                <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop id="scoreGradientStop1" offset="0%" stop-color="#8b5cf6" />
+                  <stop id="scoreGradientStop2" offset="50%" stop-color="#ec4899" />
+                  <stop id="scoreGradientStop3" offset="100%" stop-color="#06b6d4" />
+                </linearGradient>
+              </defs>
+              <!-- Background circle -->
+              <circle class="radial-progress-bg" cx="100" cy="100" r="82" stroke-width="14" fill="transparent" />
+              <!-- Progress circle -->
+              <circle id="radial-bar" class="radial-progress-circle radial-progress-val" cx="100" cy="100" r="82" stroke-width="14" stroke="url(#scoreGradient)" fill="transparent" stroke-dasharray="515.22" stroke-dashoffset="515.22" />
+            </svg>
+
+            <!-- Center Value -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+              <span id="score-number" class="font-display text-4xl sm:text-5xl font-extrabold text-white tracking-tight">0%</span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 mt-1">Гармония</span>
+            </div>
+          </div>
+
+          <!-- Verdict Details -->
+          <div class="flex-1 text-center lg:text-left space-y-4">
+            <div id="verdict-category-badge" class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30">
+              <i data-lucide="award" class="w-3.5 h-3.5 text-brand-400"></i>
+              <span id="verdict-category-text">Фенотипический вердикт</span>
+            </div>
+
+            <h2 id="verdict-title" class="text-2xl sm:text-3xl font-extrabold text-white font-display">
+              Анализ завершен
+            </h2>
+
+            <p id="detailed-verdict" class="text-slate-300 text-sm sm:text-base leading-relaxed">
+              Детальное описание морфологической гармонии...
+            </p>
+
+            <div class="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs text-slate-400">
+              <span class="inline-flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> Биометрическая синергия</span>
+              <span class="inline-flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4 text-pink-400"></i> Золотое сечение</span>
+              <span class="inline-flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4 text-cyan-400"></i> Фенотипический баланс</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Detailed Metrics Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Metric 1: Geometry -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 flex flex-col justify-between gap-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center">
+                <i data-lucide="shapes" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <p class="text-xs font-medium text-slate-400">Овал и симметрия</p>
+                <h4 class="text-sm font-bold text-white">Геометрия</h4>
+              </div>
+            </div>
+            <span id="metric-geometry-val" class="font-display font-extrabold text-lg text-violet-400">0%</span>
+          </div>
+          <div>
+            <div class="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden">
+              <div id="metric-geometry-bar" class="bg-gradient-to-r from-violet-600 to-indigo-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-2">Пропорции лица, угол челюсти и общая симметрия</p>
+          </div>
+        </div>
+
+        <!-- Metric 2: Features -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 flex flex-col justify-between gap-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <p class="text-xs font-medium text-slate-400">Глаза, нос, губы</p>
+                <h4 class="text-sm font-bold text-white">Черты лица</h4>
+              </div>
+            </div>
+            <span id="metric-features-val" class="font-display font-extrabold text-lg text-pink-400">0%</span>
+          </div>
+          <div>
+            <div class="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden">
+              <div id="metric-features-bar" class="bg-gradient-to-r from-pink-600 to-rose-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-2">Созвучие разреза глаз, контура губ и формы бровей</p>
+          </div>
+        </div>
+
+        <!-- Metric 3: Expression -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 flex flex-col justify-between gap-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                <i data-lucide="smile" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <p class="text-xs font-medium text-slate-400">Мимика и взгляд</p>
+                <h4 class="text-sm font-bold text-white">Мимика</h4>
+              </div>
+            </div>
+            <span id="metric-expression-val" class="font-display font-extrabold text-lg text-cyan-400">0%</span>
+          </div>
+          <div>
+            <div class="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden">
+              <div id="metric-expression-bar" class="bg-gradient-to-r from-cyan-600 to-teal-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-2">Эмоциональная теплота, глубина взгляда и улыбки</p>
+          </div>
+        </div>
+
+        <!-- Metric 4: Phenotype -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 flex flex-col justify-between gap-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <i data-lucide="dna" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <p class="text-xs font-medium text-slate-400">Типаж и текстура</p>
+                <h4 class="text-sm font-bold text-white">Фенотип</h4>
+              </div>
+            </div>
+            <span id="metric-phenotype-val" class="font-display font-extrabold text-lg text-emerald-400">0%</span>
+          </div>
+          <div>
+            <div class="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden">
+              <div id="metric-phenotype-bar" class="bg-gradient-to-r from-emerald-600 to-green-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-2">Антропологическое сходство и эстетическое созвучие</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Matching & Complementary Traits Section -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Matching Traits -->
+        <div class="glass-card rounded-3xl p-6 sm:p-7 border border-slate-800/80 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+              <i data-lucide="sparkles" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-base text-white">Схожие черты</h3>
+              <p class="text-xs text-slate-400">Точки фенотипического сходства</p>
+            </div>
+          </div>
+
+          <ul id="matching-traits-list" class="space-y-3 pt-2">
+            <!-- Dynamic items -->
+          </ul>
+        </div>
+
+        <!-- Complementary Traits -->
+        <div class="glass-card rounded-3xl p-6 sm:p-7 border border-slate-800/80 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-pink-500/20 text-pink-400 flex items-center justify-center border border-pink-500/30">
+              <i data-lucide="scale" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-base text-white">Комплементарный баланс</h3>
+              <p class="text-xs text-slate-400">Черты, гармонично дополняющие друг друга</p>
+            </div>
+          </div>
+
+          <ul id="complementary-traits-list" class="space-y-3 pt-2">
+            <!-- Dynamic items -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="flex items-center justify-center gap-4 pt-4">
+        <button id="btn-reset" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-medium text-xs transition flex items-center gap-2 border border-slate-700">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          <span>Новый анализ</span>
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative z-10 border-t border-slate-800/80 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p>FaceHarmony AI &copy; 2026. Конфиденциальность гарантирована: изображения обрабатываются в памяти.</p>
+      <div class="flex items-center gap-4 text-slate-400">
+        <span class="hover:text-white transition cursor-pointer">Морфометрия</span>
+        <span>•</span>
+        <span class="hover:text-white transition cursor-pointer">API Gemini</span>
+        <span>•</span>
+        <span class="hover:text-white transition cursor-pointer">Алгоритм гармонии</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Frontend Logic -->
+  <script>
+    // State
+    const state = {
+      imageA: null,
+      imageB: null,
+      isAnalyzing: false,
+    };
+
+    // DOM Elements
+    const inputA = document.getElementById('input-a');
+    const inputB = document.getElementById('input-b');
+    const dropzoneA = document.getElementById('dropzone-a');
+    const dropzoneB = document.getElementById('dropzone-b');
+    const placeholderA = document.getElementById('placeholder-a');
+    const placeholderB = document.getElementById('placeholder-b');
+    const previewContainerA = document.getElementById('preview-container-a');
+    const previewContainerB = document.getElementById('preview-container-b');
+    const imgPreviewA = document.getElementById('img-preview-a');
+    const imgPreviewB = document.getElementById('img-preview-b');
+    const btnRemoveA = document.getElementById('btn-remove-a');
+    const btnRemoveB = document.getElementById('btn-remove-b');
+    const badgeA = document.getElementById('badge-a');
+    const badgeB = document.getElementById('badge-b');
+    const btnAnalyze = document.getElementById('btn-analyze');
+    const btnText = document.getElementById('btn-text');
+    const btnSpinner = document.getElementById('btn-spinner');
+    const btnLoadDemoHarmony = document.getElementById('btn-load-demo-harmony');
+    const btnLoadDemoContrast = document.getElementById('btn-load-demo-contrast');
+    const analysisStepStatus = document.getElementById('analysis-step-status');
+    const errorBox = document.getElementById('error-box');
+    const errorTitle = document.getElementById('error-title');
+    const errorMessage = document.getElementById('error-message');
+    const resultsSection = document.getElementById('results-section');
+    const btnReset = document.getElementById('btn-reset');
+
+    // Results Elements
+    const radialBar = document.getElementById('radial-bar');
+    const scoreNumber = document.getElementById('score-number');
+    const verdictTitle = document.getElementById('verdict-title');
+    const detailedVerdict = document.getElementById('detailed-verdict');
+    const metricGeometryVal = document.getElementById('metric-geometry-val');
+    const metricGeometryBar = document.getElementById('metric-geometry-bar');
+    const metricFeaturesVal = document.getElementById('metric-features-val');
+    const metricFeaturesBar = document.getElementById('metric-features-bar');
+    const metricExpressionVal = document.getElementById('metric-expression-val');
+    const metricExpressionBar = document.getElementById('metric-expression-bar');
+    const metricPhenotypeVal = document.getElementById('metric-phenotype-val');
+    const metricPhenotypeBar = document.getElementById('metric-phenotype-bar');
+    const matchingTraitsList = document.getElementById('matching-traits-list');
+    const complementaryTraitsList = document.getElementById('complementary-traits-list');
+
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Helper: update button state
+    function updateAnalyzeButton() {
+      if (state.imageA && state.imageB && !state.isAnalyzing) {
+        btnAnalyze.disabled = false;
+        btnAnalyze.classList.remove('opacity-50', 'cursor-not-allowed');
+        btnAnalyze.classList.add('hover:scale-105', 'active:scale-95');
+      } else {
+        btnAnalyze.disabled = true;
+        btnAnalyze.classList.add('opacity-50', 'cursor-not-allowed');
+        btnAnalyze.classList.remove('hover:scale-105', 'active:scale-95');
+      }
+    }
+
+    // Handle File to Base64
+    function handleFile(file, partner) {
+      if (!file || !file.type.startsWith('image/')) {
+        showError('Неверный формат', 'Пожалуйста, выберите файл изображения (JPG, PNG, WEBP).');
+        return;
+      }
+      hideError();
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64Data = e.target.result;
+        if (partner === 'A') {
+          state.imageA = base64Data;
+          imgPreviewA.src = base64Data;
+          placeholderA.classList.add('hidden');
+          previewContainerA.classList.remove('hidden');
+          badgeA.textContent = 'Готово';
+          badgeA.className = 'text-xs text-violet-400 font-semibold';
+        } else {
+          state.imageB = base64Data;
+          imgPreviewB.src = base64Data;
+          placeholderB.classList.add('hidden');
+          previewContainerB.classList.remove('hidden');
+          badgeB.textContent = 'Готово';
+          badgeB.className = 'text-xs text-pink-400 font-semibold';
+        }
+        updateAnalyzeButton();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Setup Drag and Drop
+    function setupDropzone(dropzone, input, partner) {
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add('border-brand-500', 'bg-slate-800/80');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.remove('border-brand-500', 'bg-slate-800/80');
+        }, false);
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files && files.length > 0) {
+          handleFile(files[0], partner);
+        }
+      });
+
+      input.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          handleFile(e.target.files[0], partner);
+        }
+      });
+    }
+
+    setupDropzone(dropzoneA, inputA, 'A');
+    setupDropzone(dropzoneB, inputB, 'B');
+
+    // Remove buttons
+    btnRemoveA.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.imageA = null;
+      inputA.value = '';
+      placeholderA.classList.remove('hidden');
+      previewContainerA.classList.add('hidden');
+      badgeA.textContent = 'Ожидает фото';
+      badgeA.className = 'text-xs text-slate-500 font-medium';
+      updateAnalyzeButton();
+    });
+
+    btnRemoveB.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.imageB = null;
+      inputB.value = '';
+      placeholderB.classList.remove('hidden');
+      previewContainerB.classList.add('hidden');
+      badgeB.textContent = 'Ожидает фото';
+      badgeB.className = 'text-xs text-slate-500 font-medium';
+      updateAnalyzeButton();
+    });
+
+    // Reset button
+    btnReset.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Error UI helpers
+    function showError(title, msg) {
+      errorTitle.textContent = title;
+      errorMessage.textContent = msg;
+      errorBox.classList.remove('hidden');
+    }
+
+    function hideError() {
+      errorBox.classList.add('hidden');
+    }
+
+    // Generate High-Quality SVG portrait avatars for 1-click Demo
+    function generateDemoPortrait(gender) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 400;
+      const ctx = canvas.getContext('2d');
+
+      if (type === 'contrast_square') {
+        // Dark crimson background
+        const grad = ctx.createLinearGradient(0, 0, 400, 400);
+        grad.addColorStop(0, '#311019');
+        grad.addColorStop(1, '#0f172a');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 400, 400);
+
+        // Square angular face
+        ctx.fillStyle = '#e2b49a';
+        ctx.beginPath();
+        ctx.roundRect(110, 100, 180, 200, 20);
+        ctx.fill();
+
+        // Dark buzzcut
+        ctx.fillStyle = '#1e1b18';
+        ctx.fillRect(105, 80, 190, 45);
+
+        // Sharp angular eyes
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(140, 175, 26, 7);
+        ctx.fillRect(234, 175, 26, 7);
+
+        // Heavy straight horizontal eyebrows
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(135, 158, 36, 7);
+        ctx.fillRect(229, 158, 36, 7);
+
+        // Straight, stern lips (no smile)
+        ctx.strokeStyle = '#7f1d1d';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(165, 250);
+        ctx.lineTo(235, 250);
+        ctx.stroke();
+
+        return canvas.toDataURL('image/jpeg', 0.9);
+      }
+
+      // Default / Harmonious / Soft
+      const grad = ctx.createLinearGradient(0, 0, 400, 400);
+      if (type === 'female_soft') {
+        grad.addColorStop(0, '#3b0764');
+        grad.addColorStop(1, '#0f172a');
+      } else {
+        grad.addColorStop(0, '#1e1b4b');
+        grad.addColorStop(1, '#0f172a');
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 400, 400);
+
+      // Face silhouette (soft oval)
+      ctx.fillStyle = type === 'female_soft' ? '#fbe7db' : '#f5d0b5';
+      ctx.beginPath();
+      ctx.ellipse(200, 190, 85, 115, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Hair
+      ctx.fillStyle = type === 'female_soft' ? '#854d0e' : '#332219';
+      ctx.beginPath();
+      if (type === 'female_soft') {
+        ctx.arc(200, 170, 96, Math.PI * 0.8, Math.PI * 2.2);
+        ctx.fill();
+        ctx.fillRect(105, 170, 30, 100);
+        ctx.fillRect(265, 170, 30, 100);
+      } else {
+        ctx.arc(200, 150, 92, Math.PI * 0.9, Math.PI * 2.1);
+        ctx.fill();
+      }
+
+      // Warm almond eyes
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.ellipse(165, 185, 9, 6, 0, 0, Math.PI * 2);
+      ctx.ellipse(235, 185, 9, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Gentle curved smile
+      ctx.strokeStyle = '#991b1b';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.arc(200, 235, 24, 0.15, Math.PI - 0.15);
+      ctx.stroke();
+
+      // Eyebrows
+      ctx.strokeStyle = type === 'female_soft' ? '#57300a' : '#332219';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(165, 172, 14, Math.PI * 1.1, Math.PI * 1.9);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(235, 172, 14, Math.PI * 1.1, Math.PI * 1.9);
+      ctx.stroke();
+
+      return canvas.toDataURL('image/jpeg', 0.9);
+    }
+
+    // Load Harmonious Pair (Yields ~85-95%)
+    btnLoadDemoHarmony.addEventListener('click', () => {
+      const demoA = generateDemoPortrait('male_soft');
+      const demoB = generateDemoPortrait('female_soft');
+
+      state.imageA = demoA;
+      imgPreviewA.src = demoA;
+      placeholderA.classList.add('hidden');
+      previewContainerA.classList.remove('hidden');
+      badgeA.textContent = 'Овал (Мягкий)';
+      badgeA.className = 'text-xs text-violet-400 font-semibold';
+
+      state.imageB = demoB;
+      imgPreviewB.src = demoB;
+      placeholderB.classList.add('hidden');
+      previewContainerB.classList.remove('hidden');
+      badgeB.textContent = 'Овал (Мягкий)';
+      badgeB.className = 'text-xs text-pink-400 font-semibold';
+
+      hideError();
+      updateAnalyzeButton();
+    });
+
+    // Load Contrasting Pair (Yields ~25-45%)
+    btnLoadDemoContrast.addEventListener('click', () => {
+      const demoA = generateDemoPortrait('female_soft');
+      const demoB = generateDemoPortrait('contrast_square');
+
+      state.imageA = demoA;
+      imgPreviewA.src = demoA;
+      placeholderA.classList.add('hidden');
+      previewContainerA.classList.remove('hidden');
+      badgeA.textContent = 'Овал (Улыбка)';
+      badgeA.className = 'text-xs text-violet-400 font-semibold';
+
+      state.imageB = demoB;
+      imgPreviewB.src = demoB;
+      placeholderB.classList.add('hidden');
+      previewContainerB.classList.remove('hidden');
+      badgeB.textContent = 'Квадрат (Строгий)';
+      badgeB.className = 'text-xs text-amber-400 font-semibold';
+
+      hideError();
+      updateAnalyzeButton();
+    });
+
+    // Step animation for status message
+    function cycleStatusMessages() {
+      const messages = [
+        'Инициализация морфометрического сканера...',
+        'Анализ симметрии и золотого сечения...',
+        'Сопоставление фенотипических черт (глаза, овал, улыбка)...',
+        'Оценка эмоционального и мимического резонанса...',
+        'Формирование итоговой гармонической шкалы...'
+      ];
+      let i = 0;
+      analysisStepStatus.textContent = messages[0];
+      const interval = setInterval(() => {
+        if (!state.isAnalyzing) {
+          clearInterval(interval);
+          analysisStepStatus.textContent = '';
+          return;
+        }
+        i = (i + 1) % messages.length;
+        analysisStepStatus.textContent = messages[i];
+      }, 1800);
+      return interval;
+    }
+
+    // Animate radial circular score
+    function animateRadialScore(targetVal) {
+      const radius = 82;
+      const circumference = 2 * Math.PI * radius; // ~515.22
+      radialBar.style.strokeDasharray = `${circumference}`;
+      radialBar.style.strokeDashoffset = `${circumference}`;
+
+      // Calculate target offset
+      const offset = circumference - (targetVal / 100) * circumference;
+
+      setTimeout(() => {
+        radialBar.style.strokeDashoffset = offset;
+      }, 100);
+
+      // Animate counter text
+      let currentVal = 0;
+      const duration = 1200;
+      const stepTime = 20;
+      const stepIncrement = targetVal / (duration / stepTime);
+
+      const timer = setInterval(() => {
+        currentVal += stepIncrement;
+        if (currentVal >= targetVal) {
+          currentVal = targetVal;
+          clearInterval(timer);
+        }
+        scoreNumber.textContent = `${Math.round(currentVal)}%`;
+      }, stepTime);
+    }
+
+    // Render Results
+    function renderResults(data) {
+      // 1. Unhide results section
+      resultsSection.classList.remove('hidden');
+      setTimeout(() => {
+        resultsSection.classList.remove('opacity-0');
+        resultsSection.classList.add('opacity-100');
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+
+      // 2. Animate Circular Score
+      animateRadialScore(data.overall_harmony_score);
+
+      // Dynamic theme adaptation based on score range
+      const score = data.overall_harmony_score;
+      const catBadge = document.getElementById('verdict-category-badge');
+      const catText = document.getElementById('verdict-category-text');
+      const stop1 = document.getElementById('scoreGradientStop1');
+      const stop2 = document.getElementById('scoreGradientStop2');
+      const stop3 = document.getElementById('scoreGradientStop3');
+
+      if (score < 45) {
+        if (catBadge) catBadge.className = 'inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30';
+        if (catText) catText.textContent = 'Визуальный контраст / Диссонанс';
+        if (stop1) stop1.setAttribute('stop-color', '#f43f5e'); // rose
+        if (stop2) stop2.setAttribute('stop-color', '#f97316'); // orange
+        if (stop3) stop3.setAttribute('stop-color', '#eab308'); // yellow
+      } else if (score < 75) {
+        if (catBadge) catBadge.className = 'inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30';
+        if (catText) catText.textContent = 'Органичный дуализм и баланс';
+        if (stop1) stop1.setAttribute('stop-color', '#6366f1'); // indigo
+        if (stop2) stop2.setAttribute('stop-color', '#06b6d4'); // cyan
+        if (stop3) stop3.setAttribute('stop-color', '#10b981'); // emerald
+      } else {
+        if (catBadge) catBadge.className = 'inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30';
+        if (catText) catText.textContent = 'Высокая фенотипическая гармония';
+        if (stop1) stop1.setAttribute('stop-color', '#8b5cf6'); // violet
+        if (stop2) stop2.setAttribute('stop-color', '#ec4899'); // pink
+        if (stop3) stop3.setAttribute('stop-color', '#06b6d4'); // cyan
+      }
+
+      // 3. Verdict
+      verdictTitle.textContent = data.verdict_title || 'Высокая фенотипическая гармония';
+      detailedVerdict.textContent = data.detailed_verdict || '';
+
+      // 4. Metrics
+      const m = data.metrics || {};
+      const geo = m.geometry_score ?? 80;
+      const feat = m.features_score ?? 85;
+      const expr = m.expression_score ?? 82;
+      const phen = m.phenotype_score ?? 88;
+
+      metricGeometryVal.textContent = `${geo}%`;
+      metricGeometryBar.style.width = `${geo}%`;
+
+      metricFeaturesVal.textContent = `${feat}%`;
+      metricFeaturesBar.style.width = `${feat}%`;
+
+      metricExpressionVal.textContent = `${expr}%`;
+      metricExpressionBar.style.width = `${expr}%`;
+
+      metricPhenotypeVal.textContent = `${phen}%`;
+      metricPhenotypeBar.style.width = `${phen}%`;
+
+      // 5. Matching Traits List
+      matchingTraitsList.innerHTML = '';
+      (data.matching_traits || []).forEach(trait => {
+        const li = document.createElement('li');
+        li.className = 'flex items-start gap-2.5 text-xs sm:text-sm text-slate-300';
+        li.innerHTML = `
+          <div class="w-5 h-5 rounded-md bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          </div>
+          <span class="leading-snug">${escapeHtml(trait)}</span>
+        `;
+        matchingTraitsList.appendChild(li);
+      });
+
+      // 6. Complementary Traits List
+      complementaryTraitsList.innerHTML = '';
+      (data.complementary_traits || []).forEach(trait => {
+        const li = document.createElement('li');
+        li.className = 'flex items-start gap-2.5 text-xs sm:text-sm text-slate-300';
+        li.innerHTML = `
+          <div class="w-5 h-5 rounded-md bg-pink-500/20 text-pink-400 flex items-center justify-center shrink-0 mt-0.5">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          </div>
+          <span class="leading-snug">${escapeHtml(trait)}</span>
+        `;
+        complementaryTraitsList.appendChild(li);
+      });
+
+      lucide.createIcons();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Analyze Click Handler
+    btnAnalyze.addEventListener('click', async () => {
+      if (!state.imageA || !state.imageB || state.isAnalyzing) return;
+
+      hideError();
+      state.isAnalyzing = true;
+      updateAnalyzeButton();
+
+      btnText.textContent = 'Анализируем лица...';
+      btnSpinner.classList.remove('hidden');
+      const statusInterval = cycleStatusMessages();
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            imageA: state.imageA,
+            imageB: state.imageB
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || data.details || `Ошибка сервера (${res.status})`);
+        }
+
+        renderResults(data);
+
+      } catch (err) {
+        console.error('Fetch error:', err);
+        showError('Не удалось рассчитать гармонию', err.message || 'Произошла непредвиденная ошибка при запросе к серверу.');
+      } finally {
+        state.isAnalyzing = false;
+        clearInterval(statusInterval);
+        analysisStepStatus.textContent = '';
+        btnText.textContent = 'Рассчитать гармонию';
+        btnSpinner.classList.add('hidden');
+        updateAnalyzeButton();
+      }
+    });
+  </script>
+</body>
+</html>
